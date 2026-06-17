@@ -19,15 +19,17 @@ export type {
   QuartzPageTypePluginInstance,
 } from "@quartz-community/types";
 
-export interface ExampleTransformerOptions {
-  /** Token used to highlight text, defaults to ==highlight== */
-  highlightToken: string;
-  /** Add a CSS class to all headings in the rendered HTML. */
-  headingClass: string;
-  /** Enable remark-gfm for tables/task lists. */
-  enableGfm: boolean;
-  /** Enable adding slug IDs to headings. */
-  addHeadingSlugs: boolean;
+export interface TocEntry {
+  depth: number;
+  text: string;
+  slug: string;
+}
+
+export interface TocTransformerOptions {
+  maxDepth: 1 | 2 | 3 | 4 | 5 | 6;
+  minEntries: number;
+  showByDefault: boolean;
+  collapseByDefault: boolean;
 }
 
 export interface ExampleFilterOptions {

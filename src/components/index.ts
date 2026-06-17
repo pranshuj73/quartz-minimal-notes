@@ -1,2 +1,3 @@
-export { default as ExampleComponent } from "./ExampleComponent";
-export type { ExampleComponentOptions } from "./ExampleComponent";
+export { default as MobileToc } from "./MobileToc";
+export { default as Backlinks } from "./Backlinks";
+export type { BacklinksOptions } from "./Backlinks";

@@ -1,103 +1,54 @@
-import type { PluggableList, Plugin } from "unified";
-import type { Root as MdastRoot } from "mdast";
-import type { Root as HastRoot, Element } from "hast";
+import type { QuartzTransformerPlugin } from "@quartz-community/types";
+import type { Root } from "mdast";
 import type { VFile } from "vfile";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import { findAndReplace } from "mdast-util-find-and-replace";
 import { visit } from "unist-util-visit";
-import type { QuartzTransformerPlugin, BuildCtx } from "@quartz-community/types";
-import type { ExampleTransformerOptions } from "./types";
+import { toString } from "mdast-util-to-string";
+import Slugger from "github-slugger";
+import type { TocTransformerOptions, TocEntry } from "./types";
 
-const defaultOptions: ExampleTransformerOptions = {
-  highlightToken: "==",
-  headingClass: "example-plugin-heading",
-  enableGfm: true,
-  addHeadingSlugs: true,
+const defaultOptions: TocTransformerOptions = {
+  maxDepth: 3,
+  minEntries: 1,
+  showByDefault: true,
+  collapseByDefault: false,
 };
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const slugAnchor = new Slugger();
 
-const remarkHighlightToken = (token: string): Plugin<[], MdastRoot> => {
-  const escapedToken = escapeRegExp(token);
-  const pattern = new RegExp(`${escapedToken}([^\n]+?)${escapedToken}`, "g");
-  return () => (tree: MdastRoot, _file: VFile) => {
-    findAndReplace(tree, [
-      [
-        pattern,
-        (_match: string, value: string) => ({
-          type: "strong",
-          children: [{ type: "text", value }],
-        }),
-      ],
-    ]);
-  };
-};
-
-const rehypeHeadingClass = (className: string): Plugin<[], HastRoot> => {
-  return () => (tree: HastRoot, _file: VFile) => {
-    visit(tree, "element", (node: Element) => {
-      if (!/^h[1-6]$/.test(node.tagName)) {
-        return;
-      }
-
-      const existing = node.properties?.className;
-      const classes: string[] = Array.isArray(existing)
-        ? existing.filter((value): value is string => typeof value === "string")
-        : typeof existing === "string"
-          ? [existing]
-          : [];
-      node.properties = {
-        ...node.properties,
-        className: [...classes, className],
-      };
-    });
-  };
-};
-
-/**
- * Example transformer showing remark/rehype usage and resource injection.
- */
-export const ExampleTransformer: QuartzTransformerPlugin<Partial<ExampleTransformerOptions>> = (
-  userOptions?: Partial<ExampleTransformerOptions>,
+export const TocTransformer: QuartzTransformerPlugin<Partial<TocTransformerOptions>> = (
+  userOpts,
 ) => {
-  const options = { ...defaultOptions, ...userOptions };
+  const opts = { ...defaultOptions, ...userOpts };
   return {
-    name: "ExampleTransformer",
-    textTransform(_ctx: BuildCtx, src: string) {
-      return src.endsWith("\n") ? src : `${src}\n`;
-    },
-    markdownPlugins(): PluggableList {
-      const plugins: PluggableList = [remarkHighlightToken(options.highlightToken)];
-      if (options.enableGfm) {
-        plugins.unshift(remarkGfm);
-      }
-      return plugins;
-    },
-    htmlPlugins(): PluggableList {
-      const plugins: PluggableList = [rehypeHeadingClass(options.headingClass)];
-      if (options.addHeadingSlugs) {
-        plugins.unshift(rehypeSlug);
-      }
-      return plugins;
-    },
-    externalResources() {
-      return {
-        css: [
-          {
-            content: `.${options.headingClass} { letter-spacing: 0.02em; }`,
-            inline: true,
+    name: "NotesLayoutToc",
+    markdownPlugins() {
+      return [
+        () =>
+          async (tree: Root, file: VFile) => {
+            const frontmatter = file.data.frontmatter as Record<string, unknown> | undefined;
+            const display = frontmatter?.enableToc ?? opts.showByDefault;
+            if (!display) return;
+
+            slugAnchor.reset();
+            const toc: TocEntry[] = [];
+            let highestDepth: number = opts.maxDepth;
+            visit(tree, "heading", (node) => {
+              if (node.depth <= opts.maxDepth) {
+                const text = toString(node);
+                highestDepth = Math.min(highestDepth, node.depth);
+                toc.push({ depth: node.depth, text, slug: slugAnchor.slug(text) });
+              }
+            });
+
+            if (toc.length > 0 && toc.length > opts.minEntries) {
+              file.data.toc = toc.map((entry) => ({
+                ...entry,
+                depth: entry.depth - highestDepth,
+              }));
+              file.data.collapseToc = opts.collapseByDefault;
+            }
           },
-        ],
-        js: [
-          {
-            contentType: "inline",
-            loadTime: "afterDOMReady",
-            script: "document.documentElement.dataset.exampleTransformer = 'true'",
-          },
-        ],
-        additionalHead: [],
-      };
+      ];
     },
   };
 };
