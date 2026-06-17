@@ -31,4 +31,3 @@ export interface TocTransformerOptions {
   showByDefault: boolean;
   collapseByDefault: boolean;
 }
-

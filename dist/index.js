@@ -507,14 +507,7 @@ var Backlinks_default = ((opts) => {
     return /* @__PURE__ */ u2("div", { class: classes, children: [
       /* @__PURE__ */ u2("h1", { children: "Backlinks" }),
       /* @__PURE__ */ u2("ul", { class: "overflow", id: listId, children: [
-        backlinkFiles.length > 0 ? backlinkFiles.map((f3) => /* @__PURE__ */ u2("li", { children: /* @__PURE__ */ u2(
-          "a",
-          {
-            href: resolveRelative(fileData.slug, f3.slug),
-            class: "internal",
-            children: f3.frontmatter?.title
-          }
-        ) })) : /* @__PURE__ */ u2("li", { children: "No backlinks found" }),
+        backlinkFiles.length > 0 ? backlinkFiles.map((f3) => /* @__PURE__ */ u2("li", { children: /* @__PURE__ */ u2("a", { href: resolveRelative(fileData.slug, f3.slug), class: "internal", children: f3.frontmatter?.title }) })) : /* @__PURE__ */ u2("li", { children: "No backlinks found" }),
         /* @__PURE__ */ u2("li", { class: "overflow-end" })
       ] })
     ] });

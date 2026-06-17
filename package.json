@@ -97,7 +97,10 @@
   "quartz": {
     "name": "notes-layout",
     "displayName": "Notes Layout",
-    "category": ["transformer", "component"],
+    "category": [
+      "transformer",
+      "component"
+    ],
     "version": "0.1.0",
     "quartzVersion": ">=5.0.0",
     "dependencies": [],

@@ -23,31 +23,30 @@ export const TocTransformer: QuartzTransformerPlugin<Partial<TocTransformerOptio
     name: "NotesLayoutToc",
     markdownPlugins() {
       return [
-        () =>
-          async (tree: Root, file: VFile) => {
-            const frontmatter = file.data.frontmatter as Record<string, unknown> | undefined;
-            const display = frontmatter?.enableToc ?? opts.showByDefault;
-            if (!display) return;
+        () => async (tree: Root, file: VFile) => {
+          const frontmatter = file.data.frontmatter as Record<string, unknown> | undefined;
+          const display = frontmatter?.enableToc ?? opts.showByDefault;
+          if (!display) return;
 
-            slugAnchor.reset();
-            const toc: TocEntry[] = [];
-            let highestDepth: number = opts.maxDepth;
-            visit(tree, "heading", (node) => {
-              if (node.depth <= opts.maxDepth) {
-                const text = toString(node);
-                highestDepth = Math.min(highestDepth, node.depth);
-                toc.push({ depth: node.depth, text, slug: slugAnchor.slug(text) });
-              }
-            });
-
-            if (toc.length > 0 && toc.length > opts.minEntries) {
-              file.data.toc = toc.map((entry) => ({
-                ...entry,
-                depth: entry.depth - highestDepth,
-              }));
-              file.data.collapseToc = opts.collapseByDefault;
+          slugAnchor.reset();
+          const toc: TocEntry[] = [];
+          let highestDepth: number = opts.maxDepth;
+          visit(tree, "heading", (node) => {
+            if (node.depth <= opts.maxDepth) {
+              const text = toString(node);
+              highestDepth = Math.min(highestDepth, node.depth);
+              toc.push({ depth: node.depth, text, slug: slugAnchor.slug(text) });
             }
-          },
+          });
+
+          if (toc.length > 0 && toc.length > opts.minEntries) {
+            file.data.toc = toc.map((entry) => ({
+              ...entry,
+              depth: entry.depth - highestDepth,
+            }));
+            file.data.collapseToc = opts.collapseByDefault;
+          }
+        },
       ];
     },
   };

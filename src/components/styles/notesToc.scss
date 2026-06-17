@@ -121,13 +121,27 @@
   opacity: 0.8;
   color: var(--tertiary);
 }
-.notes-toc-content ul .depth-0 { padding-left: 0; }
-.notes-toc-content ul .depth-1 { padding-left: 1rem; }
-.notes-toc-content ul .depth-2 { padding-left: 2rem; }
-.notes-toc-content ul .depth-3 { padding-left: 3rem; }
-.notes-toc-content ul .depth-4 { padding-left: 4rem; }
-.notes-toc-content ul .depth-5 { padding-left: 5rem; }
-.notes-toc-content ul .depth-6 { padding-left: 6rem; }
+.notes-toc-content ul .depth-0 {
+  padding-left: 0;
+}
+.notes-toc-content ul .depth-1 {
+  padding-left: 1rem;
+}
+.notes-toc-content ul .depth-2 {
+  padding-left: 2rem;
+}
+.notes-toc-content ul .depth-3 {
+  padding-left: 3rem;
+}
+.notes-toc-content ul .depth-4 {
+  padding-left: 4rem;
+}
+.notes-toc-content ul .depth-5 {
+  padding-left: 5rem;
+}
+.notes-toc-content ul .depth-6 {
+  padding-left: 6rem;
+}
 
 .notes-toc-overlay-heading {
   display: none;
