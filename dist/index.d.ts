@@ -6,4 +6,4 @@ export { Backlinks, Backlinks as BacklinksBody, BacklinksOptions, MobileToc } fr
 
 declare const TocTransformer: QuartzTransformerPlugin<Partial<TocTransformerOptions>>;
 
-export { TocTransformer, TocTransformerOptions };
+export { TocTransformerOptions, TocTransformer as default };

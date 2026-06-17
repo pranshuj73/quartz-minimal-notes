@@ -1,4 +1,4 @@
-export { TocTransformer } from "./transformer";
+export { TocTransformer as default } from "./transformer";
 export { default as MobileToc } from "./components/MobileToc";
 export { default as Backlinks } from "./components/Backlinks";
 export { default as BacklinksBody } from "./components/Backlinks";
