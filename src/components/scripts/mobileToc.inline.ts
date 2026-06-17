@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    __notesTocObserver?: IntersectionObserver;
-  }
-}
-
 function handleNavOrRender() {
   const allTocs = document.querySelectorAll<HTMLElement>("div.notes-toc-explorer");
 

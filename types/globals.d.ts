@@ -9,3 +9,7 @@ declare module "*.inline.ts" {
   const content: string;
   export default content;
 }
+
+interface Window {
+  __notesTocObserver?: IntersectionObserver;
+}
