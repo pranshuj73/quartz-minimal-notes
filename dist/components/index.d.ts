@@ -7,4 +7,4 @@ interface BacklinksOptions {
 }
 declare const _default: (opts?: Partial<BacklinksOptions>) => QuartzComponent;
 
-export { _default as Backlinks, type BacklinksOptions, _default$1 as MobileToc };
+export { _default as Backlinks, _default as BacklinksBody, type BacklinksOptions, _default$1 as MobileToc };

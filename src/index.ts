@@ -1,6 +1,7 @@
 export { TocTransformer } from "./transformer";
 export { default as MobileToc } from "./components/MobileToc";
 export { default as Backlinks } from "./components/Backlinks";
+export { default as BacklinksBody } from "./components/Backlinks";
 
 export type { TocTransformerOptions, TocEntry } from "./types";
 export type { BacklinksOptions } from "./components/Backlinks";

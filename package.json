@@ -118,6 +118,11 @@
         "defaultPosition": "left",
         "defaultPriority": 8
       },
+      "BacklinksBody": {
+        "displayName": "Backlinks (Body)",
+        "defaultPosition": "afterBody",
+        "defaultPriority": 50
+      },
       "Backlinks": {
         "displayName": "Backlinks",
         "defaultPosition": "right",

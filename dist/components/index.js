@@ -204,6 +204,6 @@ document.addEventListener("nav", function () {
   return Backlinks;
 });
 
-export { Backlinks_default as Backlinks, MobileToc_default as MobileToc };
+export { Backlinks_default as Backlinks, Backlinks_default as BacklinksBody, MobileToc_default as MobileToc };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
