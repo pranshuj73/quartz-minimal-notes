@@ -1,6 +1,4 @@
 import { createRequire } from 'module';
-import path from 'path';
-import fs from 'fs/promises';
 
 createRequire(import.meta.url);
 
@@ -334,100 +332,6 @@ var TocTransformer = (userOpts) => {
   };
 };
 
-// src/filter.ts
-var defaultOptions2 = {
-  allowDrafts: false,
-  excludeTags: ["private"],
-  excludePathPrefixes: ["_drafts/", "_private/"]
-};
-var normalizeTag = (tag) => typeof tag === "string" ? tag.trim().toLowerCase() : "";
-var includesTag = (tags, excludedTags) => {
-  if (!Array.isArray(tags)) {
-    return false;
-  }
-  const normalizedExcluded = excludedTags.map((tag) => tag.toLowerCase());
-  return tags.some((tag) => normalizedExcluded.includes(normalizeTag(tag)));
-};
-var ExampleFilter = (userOptions) => {
-  const options = { ...defaultOptions2, ...userOptions };
-  return {
-    name: "ExampleFilter",
-    shouldPublish(_ctx, [_tree, vfile]) {
-      const frontmatter = vfile.data?.frontmatter ?? {};
-      const isDraft = frontmatter.draft === true || frontmatter.draft === "true";
-      if (isDraft && !options.allowDrafts) {
-        return false;
-      }
-      if (includesTag(frontmatter.tags, options.excludeTags)) {
-        return false;
-      }
-      const filePath = typeof vfile.data?.filePath === "string" ? vfile.data.filePath : "";
-      const normalizedPath = filePath.replace(/\\/g, "/");
-      if (options.excludePathPrefixes.some((prefix) => normalizedPath.startsWith(prefix))) {
-        return false;
-      }
-      return true;
-    }
-  };
-};
-var defaultOptions3 = {
-  manifestSlug: "plugin-manifest",
-  includeFrontmatter: true,
-  metadata: {
-    generator: "Quartz Plugin Template"
-  }
-};
-var joinSegments = (...segments) => segments.filter((segment) => segment.length > 0).join("/").replace(/\/+/g, "/");
-var writeFile = async (outputDir, slug2, ext, content) => {
-  const outputPath = joinSegments(outputDir, `${slug2}${ext}`);
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, content);
-  return outputPath;
-};
-var ExampleEmitter = (userOptions) => {
-  const options = { ...defaultOptions3, ...userOptions };
-  const emitManifest = async (ctx, content) => {
-    const manifest = {
-      ...options.metadata,
-      generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      pages: content.map(([_tree, vfile]) => {
-        const frontmatter = vfile.data?.frontmatter ?? {};
-        return {
-          slug: vfile.data?.slug ?? null,
-          title: frontmatter.title ?? null,
-          tags: frontmatter.tags ?? null,
-          filePath: vfile.data?.filePath ?? null,
-          frontmatter: options.includeFrontmatter ? frontmatter : void 0
-        };
-      })
-    };
-    let json = `${JSON.stringify(manifest, null, 2)}
-`;
-    if (options.transformManifest) {
-      json = options.transformManifest(json);
-    }
-    const output = await writeFile(
-      ctx.argv.output,
-      options.manifestSlug,
-      ".json",
-      json
-    );
-    return [output];
-  };
-  return {
-    name: "ExampleEmitter",
-    async emit(ctx, content, _resources) {
-      return emitManifest(ctx, content);
-    },
-    async *partialEmit(ctx, content, _resources, _changeEvents) {
-      const outputPaths = await emitManifest(ctx, content);
-      for (const outputPath of outputPaths) {
-        yield outputPath;
-      }
-    }
-  };
-};
-
 // src/components/styles/notesToc.scss
 var notesToc_default = "@media all and (max-width: 800px) {\n  .page > #quartz-body > :not(.sidebar.left:has(.notes-toc-explorer)) {\n    transition: transform 300ms ease-in-out;\n  }\n  .page > #quartz-body.lock-scroll > :not(.sidebar.left:has(.notes-toc-explorer)) {\n    transform: translateX(100dvw);\n    transition: transform 300ms ease-in-out;\n  }\n  .page > #quartz-body .sidebar.left:has(.notes-toc-explorer) {\n    box-sizing: border-box;\n    position: sticky;\n    background-color: var(--light);\n    padding: 1rem 0 1rem 0;\n    margin: 0;\n  }\n  .page > #quartz-body .hide-until-loaded ~ .notes-toc-content {\n    display: none;\n  }\n}\n.notes-toc-explorer {\n  display: flex;\n  flex-direction: column;\n  overflow-y: hidden;\n  min-height: 1.2rem;\n  flex: 0 1 auto;\n}\n\n.notes-toc-explorer.collapsed {\n  flex: 0 1 1.2rem;\n}\n\n.notes-toc-explorer.collapsed .fold {\n  transform: rotateZ(-90deg);\n}\n\n.notes-toc-explorer .fold {\n  margin-left: 0.5rem;\n  transition: transform 0.3s ease;\n  opacity: 0.8;\n}\n\n@media all and (max-width: 800px) {\n  .notes-toc-explorer {\n    order: -2;\n    height: initial;\n    overflow: hidden;\n    flex-shrink: 0;\n    align-self: flex-start;\n    margin-top: auto;\n    margin-bottom: auto;\n  }\n}\n.notes-toc-explorer button.mobile-toc-explorer {\n  display: none;\n}\n\n.notes-toc-explorer button.desktop-toc-explorer {\n  display: flex;\n}\n\n@media all and (max-width: 800px) {\n  .notes-toc-explorer button.mobile-toc-explorer {\n    display: flex;\n  }\n  .notes-toc-explorer button.desktop-toc-explorer {\n    display: none;\n  }\n}\n.notes-toc-explorer svg {\n  pointer-events: all;\n  transition: transform 0.35s ease;\n}\n\n.notes-toc-explorer svg > polyline {\n  pointer-events: none;\n}\n\n.notes-toc-explorer button.mobile-toc-explorer,\n.notes-toc-explorer button.desktop-toc-explorer {\n  background-color: transparent;\n  border: none;\n  text-align: left;\n  cursor: pointer;\n  padding: 0;\n  color: var(--dark);\n  align-items: center;\n}\n\n.notes-toc-explorer button.mobile-toc-explorer h2,\n.notes-toc-explorer button.desktop-toc-explorer h2 {\n  font-size: 0.85rem;\n  display: inline-block;\n  margin: 0;\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  color: var(--gray);\n  font-weight: 600;\n}\n\n.notes-toc-content {\n  list-style: none;\n  overflow: hidden;\n  overflow-y: auto;\n  margin-top: 0.5rem;\n}\n\n.notes-toc-content ul {\n  list-style: none;\n  position: relative;\n  margin: 0.5rem 0;\n  padding: 0;\n}\n\n.notes-toc-content ul.notes-toc-ul {\n  overscroll-behavior: contain;\n}\n\n.notes-toc-content ul li {\n  margin: 0.25rem 0;\n}\n\n.notes-toc-content ul > li > a {\n  color: var(--dark);\n  opacity: 0.35;\n  text-decoration: none;\n  font-size: 0.9rem;\n  transition: 0.5s ease opacity, 0.3s ease color;\n}\n\n.notes-toc-content ul > li > a.in-view {\n  opacity: 0.8;\n  color: var(--tertiary);\n}\n\n.notes-toc-content ul .depth-0 {\n  padding-left: 0;\n}\n\n.notes-toc-content ul .depth-1 {\n  padding-left: 1rem;\n}\n\n.notes-toc-content ul .depth-2 {\n  padding-left: 2rem;\n}\n\n.notes-toc-content ul .depth-3 {\n  padding-left: 3rem;\n}\n\n.notes-toc-content ul .depth-4 {\n  padding-left: 4rem;\n}\n\n.notes-toc-content ul .depth-5 {\n  padding-left: 5rem;\n}\n\n.notes-toc-content ul .depth-6 {\n  padding-left: 6rem;\n}\n\n.notes-toc-overlay-heading {\n  display: none;\n}\n\n@media all and (max-width: 800px) {\n  .notes-toc-overlay-heading {\n    display: block;\n    font-size: 1rem;\n    margin: 0 0 1rem;\n    text-transform: uppercase;\n    letter-spacing: 0.05em;\n    color: var(--gray);\n  }\n}\n.notes-toc-content ul li > a {\n  color: var(--dark);\n  opacity: 0.5;\n  pointer-events: all;\n  text-decoration: none;\n  font-size: 0.9rem;\n}\n\n.notes-toc-content ul li > a:hover {\n  opacity: 1;\n  color: var(--tertiary);\n}\n\n@media all and (max-width: 800px) {\n  .notes-toc-explorer {\n    flex: 0 0 34px;\n  }\n  .notes-toc-explorer > .notes-toc-content {\n    transform: translateX(-100vw);\n    visibility: hidden;\n  }\n  .notes-toc-explorer.notes-toc-open > .notes-toc-content {\n    transform: translateX(0);\n    visibility: visible;\n  }\n  .notes-toc-explorer .notes-toc-content {\n    box-sizing: border-box;\n    z-index: 100;\n    position: absolute;\n    top: 0;\n    left: 0;\n    margin-top: 0;\n    background-color: var(--light);\n    max-width: 100vw;\n    width: 100vw;\n    overflow: hidden;\n    padding: 4rem 0rem;\n    height: 100dvh;\n    max-height: 100dvh;\n  }\n  .notes-toc-ready.notes-toc-explorer .notes-toc-content {\n    transition: transform 200ms ease, visibility 200ms ease;\n  }\n  .notes-toc-explorer .mobile-toc-explorer {\n    margin: 0;\n    padding: 5px;\n    z-index: 101;\n  }\n  .notes-toc-explorer .mobile-toc-explorer.hide-until-loaded {\n    display: none;\n  }\n  .notes-toc-explorer .mobile-toc-explorer .lucide-menu {\n    stroke: var(--darkgray);\n  }\n}\n@media all and (max-width: 800px) {\n  .mobile-no-scroll .notes-toc-content > .notes-toc-ul {\n    overscroll-behavior: contain;\n  }\n}";
 
@@ -535,7 +439,7 @@ function simplifySlug(fp) {
   const res = stripSlashes(trimSuffix(fp, "index"), true);
   return res.length === 0 ? "/" : res;
 }
-function joinSegments2(...args) {
+function joinSegments(...args) {
   if (args.length === 0) {
     return "";
   }
@@ -576,7 +480,7 @@ function pathToRoot(slug2) {
   return rootPath;
 }
 function resolveRelative(current, target) {
-  const res = joinSegments2(pathToRoot(current), simplifySlug(target));
+  const res = joinSegments(pathToRoot(current), simplifySlug(target));
   return res;
 }
 
@@ -584,10 +488,10 @@ function resolveRelative(current, target) {
 var backlinks_default = ".backlinks {\n  flex-direction: column;\n}\n.backlinks > h3 {\n  font-size: 1rem;\n  margin: 0;\n}\n.backlinks > ul.overflow {\n  list-style: none;\n  padding: 0;\n  margin: 0.5rem 0;\n  max-height: calc(100% - 2rem);\n  overscroll-behavior: contain;\n}\n.backlinks > ul.overflow > li > a {\n  background-color: transparent;\n}";
 
 // src/components/Backlinks.tsx
-var defaultOptions4 = { hideWhenEmpty: true };
+var defaultOptions2 = { hideWhenEmpty: true };
 var listCount = 0;
 var Backlinks_default = ((opts) => {
-  const options = { ...defaultOptions4, ...opts };
+  const options = { ...defaultOptions2, ...opts };
   const listId = `backlinks-list-${listCount++}`;
   const Backlinks = ({
     fileData,
@@ -637,6 +541,6 @@ document.addEventListener("nav", function () {
   return Backlinks;
 });
 
-export { Backlinks_default as Backlinks, ExampleEmitter, ExampleFilter, MobileToc_default as MobileToc, TocTransformer };
+export { Backlinks_default as Backlinks, MobileToc_default as MobileToc, TocTransformer };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
