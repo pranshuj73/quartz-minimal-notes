@@ -1,6 +1,4 @@
 export { TocTransformer } from "./transformer";
-export { ExampleFilter } from "./filter";
-export { ExampleEmitter } from "./emitter";
 export { default as MobileToc } from "./components/MobileToc";
 export { default as Backlinks } from "./components/Backlinks";
 
