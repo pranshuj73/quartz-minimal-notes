@@ -1,10 +1,10 @@
 import { QuartzComponent } from '@quartz-community/types';
 
-interface ExampleComponentOptions {
-    prefix?: string;
-    suffix?: string;
-    className?: string;
-}
-declare const _default: (opts?: ExampleComponentOptions) => QuartzComponent;
+declare const _default$1: () => QuartzComponent;
 
-export { _default as ExampleComponent, type ExampleComponentOptions };
+interface BacklinksOptions {
+    hideWhenEmpty: boolean;
+}
+declare const _default: (opts?: Partial<BacklinksOptions>) => QuartzComponent;
+
+export { _default as Backlinks, type BacklinksOptions, _default$1 as MobileToc };
