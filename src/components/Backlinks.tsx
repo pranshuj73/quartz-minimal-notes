@@ -35,7 +35,7 @@ export default ((opts?: Partial<BacklinksOptions>) => {
     const classes = [displayClass, "backlinks"].filter(Boolean).join(" ");
     return (
       <div class={classes}>
-        <h1>Backlinks</h1>
+        <h1>backlinks:</h1>
         <ul class="overflow" id={listId}>
           {backlinkFiles.length > 0 ? (
             backlinkFiles.map((f) => (
@@ -46,7 +46,7 @@ export default ((opts?: Partial<BacklinksOptions>) => {
               </li>
             ))
           ) : (
-            <li>No backlinks found</li>
+            <li>[!] no backlinks found.</li>
           )}
           <li class="overflow-end" />
         </ul>
